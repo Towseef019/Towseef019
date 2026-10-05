@@ -1,0 +1,40 @@
+name: Build Where I Slipped APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'where_i_slipped_native_android_final.zip'
+      - '.github/workflows/build-where-i-slipped.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Unpack Android project
+        run: unzip -o where_i_slipped_native_android_final.zip
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Build debug APK
+        working-directory: finalapp
+        run: gradle :app:assembleDebug --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: where-i-slipped-debug-apk
+          path: finalapp/app/build/outputs/apk/debug/app-debug.apk
